@@ -1,5 +1,5 @@
 import os
-os.sys.path.append('/home/jovan/.virtualenvs/py3cv4/lib/python3.6/site-packages')
+#os.sys.path.append('/home/jovan/.virtualenvs/py3cv4/lib/python3.6/site-packages')
 import cv2
 from datetime import datetime
 import numpy as np
@@ -8,6 +8,8 @@ from sklearn.metrics import classification_report
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 from tensorflow.python import keras
+from keras.models import load_model
+
 import time
 from skimage.io import imread
 from skimage import color
@@ -42,27 +44,27 @@ def load_MINST():
     x_test = x_test.reshape((10000, 28, 28, 1))
     return x_train,y_train,x_test,y_test
 
-# model = keras.Sequential([
-#     keras.layers.Conv2D(32, kernel_size=(3, 3), activation='relu', input_shape=(28, 28, 1)),
-#     keras.layers.MaxPooling2D((2, 2)),
-#     keras.layers.Conv2D(64, kernel_size=(3, 3), activation='relu'),
-#     keras.layers.MaxPooling2D((2, 2)),
-#     keras.layers.Conv2D(64, kernel_size=(3, 3), activation='relu'),
-#     keras.layers.Flatten(),
-#     keras.layers.Dense(64, activation='relu'),
-#     keras.layers.Dense(10, activation='softmax')
-# ])
-# model.summary()
+model = keras.Sequential([
+    keras.layers.Conv2D(32, kernel_size=(3, 3), activation='relu', input_shape=(28, 28, 1)),
+    keras.layers.MaxPooling2D((2, 2)),
+    keras.layers.Conv2D(64, kernel_size=(3, 3), activation='relu'),
+    keras.layers.MaxPooling2D((2, 2)),
+    keras.layers.Conv2D(64, kernel_size=(3, 3), activation='relu'),
+    keras.layers.Flatten(),
+    keras.layers.Dense(64, activation='relu'),
+    keras.layers.Dense(10, activation='softmax')
+])
+model.summary()
 
 
-# model.compile(
-#     optimizer='adam',
-#     loss='sparse_categorical_crossentropy',
-#     metrics=['accuracy']
-# )
-# model.fit(
-#     x=x_train, y=y_train, epochs=5
-# )
+model.compile(
+    optimizer='adam',
+    loss='sparse_categorical_crossentropy',
+    metrics=['accuracy']
+)
+model.fit(
+    x=x_train, y=y_train, epochs=5
+)
 
 # y_pred = model.predict_classes(x=x_test)
 # print("Test Accuracy: ", accuracy_score(y_test, y_pred))
