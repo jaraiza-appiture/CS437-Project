@@ -49,21 +49,21 @@ def load_MINST():
     return x_train,y_train,x_test,y_test
 
 x_train_NIST,y_train_NIST,x_test_NIST,y_test_NIST = load_NIST(DATA)
-x_train_MNIST,y_train_MNIST,x_test_MNIST,y_test_MNIST = load_MINST()
+# x_train_MNIST,y_train_MNIST,x_test_MNIST,y_test_MNIST = load_MINST()
 
-x_train_final = np.concatenate((x_train_NIST, x_train_MNIST), axis=0)
-del x_train_NIST
-del x_train_MNIST
-y_train_final = np.concatenate((y_train_NIST, y_train_MNIST), axis=0)
-del y_train_NIST
-del y_train_MNIST
-x_test_final = np.concatenate((x_test_NIST, x_test_MNIST), axis=0)
-del x_test_NIST
-del x_test_MNIST
-y_test_final = np.concatenate((y_test_NIST, y_test_MNIST), axis=0)
-del y_test_NIST
-del y_test_MNIST
-x_train_final, y_train_final = shuffle(x_train_final, y_train_final)
+# x_train_final = np.concatenate((x_train_NIST, x_train_MNIST), axis=0)
+# del x_train_NIST
+# del x_train_MNIST
+# y_train_final = np.concatenate((y_train_NIST, y_train_MNIST), axis=0)
+# del y_train_NIST
+# del y_train_MNIST
+# x_test_final = np.concatenate((x_test_NIST, x_test_MNIST), axis=0)
+# del x_test_NIST
+# del x_test_MNIST
+# y_test_final = np.concatenate((y_test_NIST, y_test_MNIST), axis=0)
+# del y_test_NIST
+# del y_test_MNIST
+# x_train_final, y_train_final = shuffle(x_train_final, y_train_final)
 
 model = keras.Sequential([
     keras.layers.Conv2D(32, kernel_size=(3, 3), activation='relu', input_shape=(28, 28, 1)),
@@ -73,7 +73,7 @@ model = keras.Sequential([
     keras.layers.Conv2D(64, kernel_size=(3, 3), activation='relu'),
     keras.layers.Flatten(),
     keras.layers.Dense(64, activation='relu'),
-    keras.layers.Dense(38, activation='softmax')
+    keras.layers.Dense(28, activation='softmax')
 ])
 model.summary()
 
@@ -83,13 +83,13 @@ model.compile(
     metrics=['accuracy']
 )
 model.fit(
-    x=x_train_final, y=y_train_final, epochs=5
+    x=x_train_NIST, y=y_train_NIST, epochs=8
 )
 
-y_pred = model.predict_classes(x=x_test_final)
-print("Test Accuracy: ", accuracy_score(y_test_final, y_pred))
-print(classification_report(y_test_final, y_pred, target_names=[
-    '%d' % i for i in range(38)
-], digits=5))
+y_pred = model.predict_classes(x=x_test_NIST)
+print("Test Accuracy: ", accuracy_score(y_test_NIST, y_pred))
+print(classification_report(y_test_NIST, y_pred, target_names=[
+    '%d' % i for i in range(10,38)
+], digits=3))
 
 model.save(MODEL_PATH)
