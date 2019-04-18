@@ -1,10 +1,16 @@
 import os
 import numpy as np
-from sklearn.metrics import classification_report
-from sklearn.metrics import accuracy_score
-from sklearn.model_selection import train_test_split
+
+from sklearn.metrics import classification_report, accuracy_score
+from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.utils import shuffle
+
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.neural_network import MLPClassifier
+
 from tensorflow.python import keras
+
 from skimage.io import imread
 from skimage.transform import resize
 
@@ -12,6 +18,7 @@ MODEL_PATH = './cnn.h5'
 DATA = './data'
 LETTER_MAP = {'A' : 0, 'B' : 1, 'C': 2, 'D': 3, 'E': 4, 'F':5,'G':6, 'H':7, 'I':8, 'i': 9, 'J':10, 'K': 11, 'L': 12, 'l':13, 'M':14, 'N':15, 'O': 16,
 'P': 17, 'Q' : 18, 'R': 19, 'S': 20, 'T': 21, 'U': 22, 'V': 23, 'W': 24, 'X':25, 'Y': 26, 'Z': 27}
+
 def load_NIST(path):
     x,y = [],[]
     # print ("path: ", path)
@@ -48,9 +55,14 @@ def load_MINST():
     x_test = x_test.reshape((10000, 28, 28, 1))
     return x_train,y_train,x_test,y_test
 
+
+# Load OCR Data
 x_train_NIST,y_train_NIST,x_test_NIST,y_test_NIST = load_NIST(DATA)
+
+# Load MNIST Data
 # x_train_MNIST,y_train_MNIST,x_test_MNIST,y_test_MNIST = load_MINST()
 
+# Combine and shuffle data
 # x_train_final = np.concatenate((x_train_NIST, x_train_MNIST), axis=0)
 # del x_train_NIST
 # del x_train_MNIST
@@ -65,14 +77,14 @@ x_train_NIST,y_train_NIST,x_test_NIST,y_test_NIST = load_NIST(DATA)
 # del y_test_MNIST
 # x_train_final, y_train_final = shuffle(x_train_final, y_train_final)
 
+
+# Convolutional Neural Network Train
 model = keras.Sequential([
     keras.layers.Conv2D(32, kernel_size=(3, 3), activation='relu', input_shape=(28, 28, 1)),
     keras.layers.MaxPooling2D((2, 2)),
     keras.layers.Conv2D(64, kernel_size=(3, 3), activation='relu'),
     keras.layers.MaxPooling2D((2, 2)),
     keras.layers.Conv2D(64, kernel_size=(3, 3), activation='relu'),
-    # keras.layers.MaxPooling2D((2, 2)),
-    # keras.layers.Conv2D(64, kernel_size=(3, 3), activation='relu'),
     keras.layers.Flatten(),
     keras.layers.Dense(64, activation='relu'),
     keras.layers.Dense(28, activation='softmax')
@@ -87,6 +99,25 @@ model.compile(
 model.fit(
     x=x_train_NIST, y=y_train_NIST, epochs=8
 )
+
+# Decision Tree Train
+dt_clf = DecisionTreeClassifier()
+results = cross_val_score(dt_clf,x_train_NIST,y_train_NIST,cv=10,scoring=('accuracy'))
+mean_accu = results.mean()
+print('Decision Tree Training: %.2f'%(mean_accu))
+
+# Random Forest Train
+rf_clf = RandomForestClassifier()
+results = cross_val_score(rf_clf,x_train_NIST,y_train_NIST,cv=10,scoring=('accuracy'))
+mean_accu = results.mean()
+print('Random Forest Training: %.2f'%(mean_accu))
+
+# Neural Network Train
+nn_clf = MLPClassifier()
+results = cross_val_score(nn_clf,x_train_NIST,y_train_NIST,cv=10,scoring=('accuracy'))
+mean_accu = results.mean()
+print('Neural Network Training: %.2f'%(mean_accu))
+
 
 y_pred = model.predict_classes(x=x_test_NIST)
 print("Test Accuracy: ", accuracy_score(y_test_NIST, y_pred))
