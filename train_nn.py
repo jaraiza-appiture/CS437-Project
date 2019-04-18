@@ -10,8 +10,8 @@ from skimage.transform import resize
 
 MODEL_PATH = './cnn.h5'
 DATA = './data'
-LETTER_MAP = {'A' : 10, 'B' : 11, 'C': 12, 'D': 13, 'E': 14, 'F':15,'G':16, 'H':17, 'I':18, 'i': 19, 'J':20, 'K': 21, 'L': 22, 'l':23, 'M':24, 'N':25, 'O': 26,
-'P': 27, 'Q' : 28, 'R': 29, 'S': 30, 'T': 31, 'U': 32, 'V': 33, 'W': 34, 'X':35, 'Y': 36, 'Z': 37}
+LETTER_MAP = {'A' : 0, 'B' : 1, 'C': 2, 'D': 3, 'E': 4, 'F':5,'G':6, 'H':7, 'I':8, 'i': 9, 'J':10, 'K': 11, 'L': 12, 'l':13, 'M':14, 'N':15, 'O': 16,
+'P': 17, 'Q' : 18, 'R': 19, 'S': 20, 'T': 21, 'U': 22, 'V': 23, 'W': 24, 'X':25, 'Y': 26, 'Z': 27}
 def load_NIST(path):
     x,y = [],[]
     # print ("path: ", path)
@@ -71,6 +71,8 @@ model = keras.Sequential([
     keras.layers.Conv2D(64, kernel_size=(3, 3), activation='relu'),
     keras.layers.MaxPooling2D((2, 2)),
     keras.layers.Conv2D(64, kernel_size=(3, 3), activation='relu'),
+    # keras.layers.MaxPooling2D((2, 2)),
+    # keras.layers.Conv2D(64, kernel_size=(3, 3), activation='relu'),
     keras.layers.Flatten(),
     keras.layers.Dense(64, activation='relu'),
     keras.layers.Dense(28, activation='softmax')
@@ -89,7 +91,7 @@ model.fit(
 y_pred = model.predict_classes(x=x_test_NIST)
 print("Test Accuracy: ", accuracy_score(y_test_NIST, y_pred))
 print(classification_report(y_test_NIST, y_pred, target_names=[
-    '%d' % i for i in range(10,38)
+    '%d' % i for i in range(28)
 ], digits=3))
 
 model.save(MODEL_PATH)
