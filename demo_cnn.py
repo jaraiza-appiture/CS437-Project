@@ -12,14 +12,12 @@ from tensorflow.python.keras.models import load_model
 import time
 
 MODEL_PATH = './cnn.h5'
-LETTER_MAP = {'A' : 0, 'B' : 1, 'C': 2,'D': 3,
-            'E': 4, 'F':5,'G':6, 'H':7, 'I':8,
-            'i': 9, 'J':10, 'K': 11, 'L': 12,
-            'l':13, 'M':14, 'N':15, 'O': 16,
-            'P': 17, 'Q' : 18, 'R': 19, 'S': 20,
-            'T': 21,'U': 22, 'V': 23, 'W': 24,
-            'X':25, 'Y': 26, 'Z': 27}
 
+LETTER_MAP = {'0':0,'1':1,'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,
+              'A' : 10, 'B' : 11, 'C': 12, 'D': 13, 'E': 14, 'F':15,'G':16,
+              'H':17, 'I':18, 'i': 19, 'J':20, 'K': 21, 'L': 22, 'l':23,
+              'M':24, 'N':25, 'O': 26,'P': 27, 'Q' : 28, 'R': 29, 'S': 30,
+              'T': 31, 'U': 32, 'V': 33, 'W': 34, 'X':35, 'Y': 36, 'Z': 37}
 REVERSE_LETTER_MAP = {v:k for k,v in LETTER_MAP.items()}
 
 FONT = cv.FONT_HERSHEY_SIMPLEX
@@ -71,53 +69,42 @@ def prediction(img, y_pred, y_class):
             y+=80
             cv2.putText(img, text=conf, org=(x, y), fontScale=font_scale, fontFace=font_face, thickness=thickness,
                         color=color, lineType=line_type)
-            rect_width = 0
-            if p > 0: rect_width = int(p * 3.3)
-            y+=60
-            rect_start = 230
-            # cv2.rectangle(img, (x+rect_start, y-5), (x+rect_start+rect_width, y-20), color, -1)
-
     return img
+if __name__ == '__main__':
+    model = load_model(MODEL_PATH) # load pre-trained cnn
+    cap = VideoStream(src=0).start() # start cam
+    time.sleep(2) # let cam warm up
 
-model = load_model(MODEL_PATH) # load pre-trained cnn
-cap = VideoStream(src=0).start() # start cam
-time.sleep(2) # let cam warm up
+    while True:
 
-while True:
-    img = cap.read()
-    #if not ret: break
+        img = cap.read()
 
-    #assert img.shape[0] == img.shape[1] # should be a square
-    if img.shape[0] != 720:
         img = cv2.resize(img, (720, 720))
 
-    # Pre-process the image for prediction
-    img_proc = cv2.cvtColor(img.copy(), cv2.COLOR_BGR2GRAY)
-    #img_proc = cv2.resize(img_proc, (28, 28),interpolation=cv2.INTER_AREA)
-    ret,img_proc = cv2.threshold(img_proc,80,255,cv2.THRESH_BINARY)
-    cv2.imshow('thresh',img_proc)
-    key = cv2.waitKey(1) & 0xFF
-    if key == ord("q"):
-        break
-    img_proc = cv2.resize(img_proc, (28, 28),interpolation=cv2.INTER_AREA)
-    img_proc = img_proc / 255.
-    #img_proc = 1 - img_proc # inverse since training dataset is white text with black background
-    img_proc = img_proc.reshape((28, 28, 1))
-    img_proc = np.expand_dims(img_proc, axis=0)
+        # Pre-process the image for prediction
+        img_proc = cv2.cvtColor(img.copy(), cv2.COLOR_BGR2GRAY)
 
-    # Run Prediction
-    y_pred = model.predict_proba(img_proc)[0, :]
-    y_class = np.argmax(y_pred)
+        ret,img_proc = cv2.threshold(img_proc,80,255,cv2.THRESH_BINARY)
 
-    img = drawPrediction2(img, y_pred * 100, y_class)
+        cv2.imshow('thresh',img_proc)
+        key = cv2.waitKey(1) & 0xFF
+        if key == ord("q"):
+            break
+        img_proc = cv2.resize(img_proc, (28, 28),interpolation=cv2.INTER_AREA)
+        img_proc = img_proc / 255.
+        img_proc = img_proc.reshape((28, 28, 1))
+        img_proc = np.expand_dims(img_proc, axis=0)
 
-    # scale down image for display
-    img_disp = cv2.resize(img, None, fx=1, fy=1)
+        # Run Prediction
+        y_pred = model.predict_proba(img_proc)[0, :]
+        y_class = np.argmax(y_pred)
 
-    cv2.imshow('output',img_disp)
-    key = cv2.waitKey(1) & 0xFF
-    if key == ord("q"):
-        break
+        img = prediction(img, y_pred * 100, y_class)
 
-cap.stop()
+        cv2.imshow('output',img)
+        key = cv2.waitKey(1) & 0xFF
+        if key == ord("q"):
+            break
+
+    cap.stop()
 

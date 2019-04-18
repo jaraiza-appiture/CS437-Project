@@ -5,36 +5,27 @@ from sklearn.metrics import classification_report, accuracy_score
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.utils import shuffle
 
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.neural_network import MLPClassifier
-
-from tensorflow.python import keras
-
 from skimage.io import imread
 from skimage.transform import resize
 
+from tensorflow.python import keras
+
 MODEL_PATH = './cnn.h5'
 DATA = './data'
-LETTER_MAP = {'A' : 0, 'B' : 1, 'C': 2, 'D': 3, 'E': 4, 'F':5,'G':6, 'H':7, 'I':8, 'i': 9, 'J':10, 'K': 11, 'L': 12, 'l':13, 'M':14, 'N':15, 'O': 16,
-'P': 17, 'Q' : 18, 'R': 19, 'S': 20, 'T': 21, 'U': 22, 'V': 23, 'W': 24, 'X':25, 'Y': 26, 'Z': 27}
+
+LETTER_MAP = {'0':0,'1':1,'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,
+              'A' : 10, 'B' : 11, 'C': 12, 'D': 13, 'E': 14, 'F':15,'G':16,
+              'H':17, 'I':18, 'i': 19, 'J':20, 'K': 21, 'L': 22, 'l':23,
+              'M':24, 'N':25, 'O': 26,'P': 27, 'Q' : 28, 'R': 29, 'S': 30,
+              'T': 31, 'U': 32, 'V': 33, 'W': 34, 'X':35, 'Y': 36, 'Z': 37}
 
 def load_NIST(path):
     x,y = [],[]
-    # print ("path: ", path)
-
     for dir_name in os.listdir(path):
-        # print ("dir_name: ", dir_name)
-
         sub = '/'.join([path,dir_name])
-        # print ("sub: ", sub)
-
         if os.path.isdir(sub):
-            # print(sub)
-
             for img in os.listdir(sub):
                 p = '/'.join([sub,img])
-                # print("p is: ", p)
                 img = imread(p,as_gray=True)
                 img_r = resize(img,(28,28))
                 x.append(img_r.copy())
@@ -51,6 +42,8 @@ def load_MINST():
     (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
     x_train = x_train / 255.
     x_test = x_test / 255.
+    x_train = 1 - x_train # flip to black letters with white backgrounds
+    x_test = 1 - x_test
     x_train = x_train.reshape((60000, 28, 28, 1))
     x_test = x_test.reshape((10000, 28, 28, 1))
     return x_train,y_train,x_test,y_test
@@ -60,23 +53,22 @@ def load_MINST():
 x_train_NIST,y_train_NIST,x_test_NIST,y_test_NIST = load_NIST(DATA)
 
 # Load MNIST Data
-# x_train_MNIST,y_train_MNIST,x_test_MNIST,y_test_MNIST = load_MINST()
+x_train_MNIST,y_train_MNIST,x_test_MNIST,y_test_MNIST = load_MINST()
 
 # Combine and shuffle data
-# x_train_final = np.concatenate((x_train_NIST, x_train_MNIST), axis=0)
-# del x_train_NIST
-# del x_train_MNIST
-# y_train_final = np.concatenate((y_train_NIST, y_train_MNIST), axis=0)
-# del y_train_NIST
-# del y_train_MNIST
-# x_test_final = np.concatenate((x_test_NIST, x_test_MNIST), axis=0)
-# del x_test_NIST
-# del x_test_MNIST
-# y_test_final = np.concatenate((y_test_NIST, y_test_MNIST), axis=0)
-# del y_test_NIST
-# del y_test_MNIST
-# x_train_final, y_train_final = shuffle(x_train_final, y_train_final)
-
+x_train_final = np.concatenate((x_train_NIST, x_train_MNIST), axis=0)
+del x_train_NIST # Lower RAM usage
+del x_train_MNIST
+y_train_final = np.concatenate((y_train_NIST, y_train_MNIST), axis=0)
+del y_train_NIST
+del y_train_MNIST
+x_test_final = np.concatenate((x_test_NIST, x_test_MNIST), axis=0)
+del x_test_NIST
+del x_test_MNIST
+y_test_final = np.concatenate((y_test_NIST, y_test_MNIST), axis=0)
+del y_test_NIST
+del y_test_MNIST
+x_train_final, y_train_final = shuffle(x_train_final, y_train_final)
 
 # Convolutional Neural Network Train
 model = keras.Sequential([
@@ -87,7 +79,7 @@ model = keras.Sequential([
     keras.layers.Conv2D(64, kernel_size=(3, 3), activation='relu'),
     keras.layers.Flatten(),
     keras.layers.Dense(64, activation='relu'),
-    keras.layers.Dense(28, activation='softmax')
+    keras.layers.Dense(38, activation='softmax')
 ])
 model.summary()
 
@@ -96,33 +88,12 @@ model.compile(
     loss='sparse_categorical_crossentropy',
     metrics=['accuracy']
 )
-model.fit(
-    x=x_train_NIST, y=y_train_NIST, epochs=8
-)
+model.fit(x=x_train_final, y=y_train_final, epochs=8)
 
-# Decision Tree Train
-dt_clf = DecisionTreeClassifier()
-results = cross_val_score(dt_clf,x_train_NIST,y_train_NIST,cv=10,scoring=('accuracy'))
-mean_accu = results.mean()
-print('Decision Tree Training: %.2f'%(mean_accu))
-
-# Random Forest Train
-rf_clf = RandomForestClassifier()
-results = cross_val_score(rf_clf,x_train_NIST,y_train_NIST,cv=10,scoring=('accuracy'))
-mean_accu = results.mean()
-print('Random Forest Training: %.2f'%(mean_accu))
-
-# Neural Network Train
-nn_clf = MLPClassifier()
-results = cross_val_score(nn_clf,x_train_NIST,y_train_NIST,cv=10,scoring=('accuracy'))
-mean_accu = results.mean()
-print('Neural Network Training: %.2f'%(mean_accu))
-
-
-y_pred = model.predict_classes(x=x_test_NIST)
-print("Test Accuracy: ", accuracy_score(y_test_NIST, y_pred))
-print(classification_report(y_test_NIST, y_pred, target_names=[
-    '%d' % i for i in range(28)
+y_pred = model.predict_classes(x=x_test_final)
+print("Test Accuracy: ", accuracy_score(y_test_final, y_pred))
+print(classification_report(y_test_final, y_pred, target_names=[
+    '%d' % i for i in range(38)
 ], digits=3))
 
 model.save(MODEL_PATH)
