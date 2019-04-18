@@ -10,6 +10,8 @@ from skimage.transform import resize
 
 MODEL_PATH = './cnn.h5'
 DATA = './data'
+LETTER_MAP = {'A' : 10, 'B' : 11, 'C': 12, 'D': 13, 'E': 14, 'F':15,'G':16, 'H':17, 'I':18, 'i': 19, 'J':20, 'K': 21, 'L': 22, 'l':23, 'M':24, 'N':25, 'O': 26,
+'P': 27, 'Q' : 28, 'R': 29, 'S': 30, 'T': 31, 'U': 32, 'V': 33, 'W': 34, 'X':35, 'Y': 36, 'Z': 37}
 def load_NIST(path):
     x,y = [],[]
     # print ("path: ", path)
@@ -22,13 +24,14 @@ def load_NIST(path):
 
         if os.path.isdir(sub):
             # print(sub)
+
             for img in os.listdir(sub):
                 p = '/'.join([sub,img])
                 # print("p is: ", p)
                 img = imread(p,as_gray=True)
                 img_r = resize(img,(28,28))
                 x.append(img_r.copy())
-                y.append(ord(dir_name))
+                y.append(LETTER_MAP[dir_name])
     x = np.array(x)
     y = np.array(y)
     x, y = shuffle(x, y)
@@ -49,9 +52,17 @@ x_train_NIST,y_train_NIST,x_test_NIST,y_test_NIST = load_NIST(DATA)
 x_train_MNIST,y_train_MNIST,x_test_MNIST,y_test_MNIST = load_MINST()
 
 x_train_final = np.concatenate((x_train_NIST, x_train_MNIST), axis=0)
+del x_train_NIST
+del x_train_MNIST
 y_train_final = np.concatenate((y_train_NIST, y_train_MNIST), axis=0)
+del y_train_NIST
+del y_train_MNIST
 x_test_final = np.concatenate((x_test_NIST, x_test_MNIST), axis=0)
+del x_test_NIST
+del x_test_MNIST
 y_test_final = np.concatenate((y_test_NIST, y_test_MNIST), axis=0)
+del y_test_NIST
+del y_test_MNIST
 x_train_final, y_train_final = shuffle(x_train_final, y_train_final)
 
 model = keras.Sequential([
