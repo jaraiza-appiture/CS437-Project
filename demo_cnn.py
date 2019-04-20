@@ -19,20 +19,23 @@ LETTER_MAP = {'0':0,'1':1,'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,
               'M':24, 'N':25, 'O': 26,'P': 27, 'Q' : 28, 'R': 29, 'S': 30,
               'T': 31, 'U': 32, 'V': 33, 'W': 34, 'X':35, 'Y': 36, 'Z': 37}
 REVERSE_LETTER_MAP = {v:k for k,v in LETTER_MAP.items()}
-
-FONT = cv.FONT_HERSHEY_SIMPLEX
-SCREEN_TITLE_POS = (10, 500)
-BOTTOM_POS = (10,50)
+RED = (0, 0, 255)
+GREEN = (0, 255, 0)
+BLUE = (255, 50, 50)
+BLACK = (0,0,0)
+FONT = cv2.FONT_HERSHEY_SIMPLEX
+PREDPOS = (740, 50)
+INPUTPOS = (30,50)
 TEXT_COLOR = GREEN
 TEXT_SIZE = 1
 TEXT_THICK = 2
 
 
 def write_text(text, image, pos):
-    cv.putText(image, text, pos, FONT, TEXT_SIZE,
-               BLACK, TEXT_THICK+5, cv.LINE_AA)
-    cv.putText(image, text, pos, FONT, TEXT_SIZE,
-               TEXT_COLOR, TEXT_THICK, cv.LINE_AA)
+    cv2.putText(image, text, pos, FONT, TEXT_SIZE,
+               BLACK, TEXT_THICK+5, cv2.LINE_AA)
+    cv2.putText(image, text, pos, FONT, TEXT_SIZE,
+               TEXT_COLOR, TEXT_THICK, cv2.LINE_AA)
     return image
 
 
@@ -48,27 +51,29 @@ def prediction(img, y_pred, y_class):
     x, y = 740, 60
     color = (255, 255, 255)
 
-    text = "Character prediction"
-    write(text,img,SCREEN_TITLE_POS)
+    text = "Character Prediction:"
+    write_text(text,img,PREDPOS)
 
     text = "Input:"
-    cv2.putText(img, text=text, org=(30, y), fontScale=font_scale, fontFace=font_face, thickness=thickness,
-                    color=color, lineType=line_type)
+    write_text(text,img,INPUTPOS)
+
     y = 140
     font_scale = 2.5
     color = (255, 218, 158)
     for i, p in enumerate(y_pred):
         if i == y_class:
-            y_classchr = REV_LETTER_MAP[i]
+            y_classchr = REVERSE_LETTER_MAP[i]
             label = "Pred: %c" % (y_classchr)
 
             conf = "Conf: %3.2f" % (p) + '%'
             y+=60
-            cv2.putText(img, text=label, org=(x, y), fontScale=font_scale, fontFace=font_face, thickness=thickness,
-                        color=color, lineType=line_type)
+            write_text(label,img,(x,y))
+            # cv2.putText(img, text=label, org=(x, y), fontScale=font_scale, fontFace=font_face, thickness=thickness,
+            #             color=color, lineType=line_type)
             y+=80
-            cv2.putText(img, text=conf, org=(x, y), fontScale=font_scale, fontFace=font_face, thickness=thickness,
-                        color=color, lineType=line_type)
+            write_text(conf,img,(x,y))
+            # cv2.putText(img, text=conf, org=(x, y), fontScale=font_scale, fontFace=font_face, thickness=thickness,
+            #             color=color, lineType=line_type)
     return img
 if __name__ == '__main__':
     model = load_model(MODEL_PATH) # load pre-trained cnn
