@@ -92,8 +92,7 @@ mean_accu = results.mean()
 print('Neural Network Training Accuracy: %.2f'%(mean_accu))
 
 # Ensemble Train
-estimators = [('dt',dt_clf),('rf',rf_clf),('nn',nn_clf),
-              ('pr',pr_clf),('lr',lr_clf),('gnb',gnb_clf)]
+estimators = [('dt',dt_clf),('rf',rf_clf),('nn',nn_clf)]
 en_clf = VotingClassifier(estimators,voting='hard')
 results = cross_val_score(en_clf,x_train_NIST,y_train_NIST,cv=5,scoring=('accuracy'))
 mean_accu = results.mean()

@@ -19,19 +19,25 @@ LETTER_MAP = {'0':0,'1':1,'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,
               'H':17, 'I':18, 'i': 19, 'J':20, 'K': 21, 'L': 22, 'l':23,
               'M':24, 'N':25, 'O': 26,'P': 27, 'Q' : 28, 'R': 29, 'S': 30,
               'T': 31, 'U': 32, 'V': 33, 'W': 34, 'X':35, 'Y': 36, 'Z': 37}
+REVERSE_LETTER_MAP = {str(v):k for k,v in LETTER_MAP.items()}
 MYLIST = []
-def plot_classification_report(cr):
-    objects = LETTER_MAP.keys()
-    y_pos = np.arange(len(objects))
-    performance = cr
+def plot_classification_report(results):
+    x_labels, x_scores = [],[]
+    classes = ['%d' % i for i in range(38)]
+    ind = [i for i in range(1,39)]
     
-    plt.bar(y_pos, performance, align='center', alpha=0.5)
-    plt.xticks(y_pos, objects)
-    plt.ylabel('Usage')
-    plt.title('Classification report')
+    for label,scores in results.items():
+        if label in classes:
+            x_labels.append(REVERSE_LETTER_MAP[label])
+            x_scores.append(scores['precision'])
+    plt.figure(figsize=(10, 7))
+    plt.bar(ind, x_scores, align='center', alpha=0.5)
+    plt.xticks(ind,x_labels)
+    plt.ylabel('Precision')
+    plt.title('Classification Report')
     
     plt.savefig('gbarplot.png')
-    plt.clf()
+
 
 def load_NIST(path):
     x,y = [],[]
@@ -107,13 +113,13 @@ history = model.fit(x_train_final, y_train_final, validation_split=0.33, epochs=
 
 y_pred = model.predict_classes(x=x_test_final)
 print("Test Accuracy: ", accuracy_score(y_test_final, y_pred))
-print (classification_report(y_test_final, y_pred, target_names=[
-    '%d' % i for i in range(38)
-], digits=3))
+results = classification_report(y_test_final, y_pred, target_names=[
+        '%d' % i for i in range(38)], digits=3,output_dict=True) 
+
 print ('Precision:', precision_score(y_test_final, y_pred ,average='micro'))
 
-plot_classification_report((precision_score(y_test_final, y_pred,average='micro' )).tolist())
-
+plot_classification_report(results)
+plt.cla()
 # list all data in history
 print(history.history.keys())
 # summarize history for accuracy
@@ -123,7 +129,7 @@ plt.title('model accuracy')
 plt.ylabel('accuracy')
 plt.xlabel('epoch')
 plt.legend(['train', 'test'], loc='upper left')
-plt.show()
+
 plt.savefig('gAccuEpoch.png')
 
 model.save(MODEL_PATH)
