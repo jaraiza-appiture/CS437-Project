@@ -110,7 +110,7 @@ print (classification_report(y_test_final, y_pred, target_names=[
 ], digits=3))
 print ('Precision:', precision_score(y_test_final, y_pred ))
 
-plot_classification_report(list(precision_score(y_test_final, y_pred )))
+plot_classification_report((precision_score(y_test_final, y_pred )).tolist())
 # history = model.fit(x_train_final, y_train_final, validation_split=0.33, epochs=3)
 # # list all data in history
 # print(history.history.keys())
