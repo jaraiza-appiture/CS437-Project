@@ -30,7 +30,8 @@ def plot_classification_report(cr):
     plt.ylabel('Usage')
     plt.title('Classification report')
     
-    plt.savefig('graph2.png')
+    plt.savefig('gbarplot.png')
+    plt.clf()
 
 def load_NIST(path):
     x,y = [],[]
@@ -101,27 +102,28 @@ model.compile(
     loss='sparse_categorical_crossentropy',
     metrics=['accuracy']
 )
-model.fit(x=x_train_final, y=y_train_final, epochs=1)
+
+history = model.fit(x_train_final, y_train_final, validation_split=0.33, epochs=8)
 
 y_pred = model.predict_classes(x=x_test_final)
 print("Test Accuracy: ", accuracy_score(y_test_final, y_pred))
 print (classification_report(y_test_final, y_pred, target_names=[
     '%d' % i for i in range(38)
 ], digits=3))
-print ('Precision:', precision_score(y_test_final, y_pred ))
+print ('Precision:', precision_score(y_test_final, y_pred ,average='micro'))
 
-plot_classification_report((precision_score(y_test_final, y_pred )).tolist())
-# history = model.fit(x_train_final, y_train_final, validation_split=0.33, epochs=3)
-# # list all data in history
-# print(history.history.keys())
-# # summarize history for accuracy
-# plt.plot(history.history['acc'])
-# plt.plot(history.history['val_acc'])
-# plt.title('model accuracy')
-# plt.ylabel('accuracy')
-# plt.xlabel('epoch')
-# plt.legend(['train', 'test'], loc='upper left')
-# plt.show()
-# plt.savefig('graph.png')
+plot_classification_report((precision_score(y_test_final, y_pred,average='micro' )).tolist())
+
+# list all data in history
+print(history.history.keys())
+# summarize history for accuracy
+plt.plot(history.history['acc'])
+plt.plot(history.history['val_acc'])
+plt.title('model accuracy')
+plt.ylabel('accuracy')
+plt.xlabel('epoch')
+plt.legend(['train', 'test'], loc='upper left')
+plt.show()
+plt.savefig('gAccuEpoch.png')
 
 model.save(MODEL_PATH)

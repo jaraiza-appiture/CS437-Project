@@ -55,39 +55,39 @@ def load_NIST(path):
 x_train_NIST,y_train_NIST,x_test_NIST,y_test_NIST = load_NIST(DATA)
 
 
-# Perceptron Train
-pr_clf = Perceptron()
-results = cross_val_score(pr_clf,x_train_NIST,y_train_NIST,cv=10,scoring=('accuracy'))
-mean_accu = results.mean()
-print('Perceptron Training Accuracy: %.2f'%(mean_accu))
+# # Perceptron Train
+# pr_clf = Perceptron()
+# results = cross_val_score(pr_clf,x_train_NIST,y_train_NIST,cv=5,scoring=('accuracy'))
+# mean_accu = results.mean()
+# print('Perceptron Training Accuracy: %.2f'%(mean_accu))
 
-# Logistic Regression Train
-lr_clf = LogisticRegression()
-results = cross_val_score(lr_clf,x_train_NIST,y_train_NIST,cv=10,scoring=('accuracy'))
-mean_accu = results.mean()
-print('Logistic Regression Training Accuracy: %.2f'%(mean_accu))
+# # Logistic Regression Train
+# lr_clf = LogisticRegression()
+# results = cross_val_score(lr_clf,x_train_NIST,y_train_NIST,cv=5,scoring=('accuracy'))
+# mean_accu = results.mean()
+# print('Logistic Regression Training Accuracy: %.2f'%(mean_accu))
 
-# Gaussian NB Train
-gnb_clf = GaussianNB()
-results = cross_val_score(gnb_clf,x_train_NIST,y_train_NIST,cv=10,scoring=('accuracy'))
-mean_accu = results.mean()
-print('Gaussian NB Training Accuracy: %.2f'%(mean_accu))
+# # Gaussian NB Train
+# gnb_clf = GaussianNB()
+# results = cross_val_score(gnb_clf,x_train_NIST,y_train_NIST,cv=5,scoring=('accuracy'))
+# mean_accu = results.mean()
+# print('Gaussian NB Training Accuracy: %.2f'%(mean_accu))
 
 # Decision Tree Train
 dt_clf = DecisionTreeClassifier()
-results = cross_val_score(dt_clf,x_train_NIST,y_train_NIST,cv=10,scoring=('accuracy'))
+results = cross_val_score(dt_clf,x_train_NIST,y_train_NIST,cv=5,scoring=('accuracy'))
 mean_accu = results.mean()
 print('Decision Tree Training Accuracy: %.2f'%(mean_accu))
 
 # Random Forest Train
 rf_clf = RandomForestClassifier()
-results = cross_val_score(rf_clf,x_train_NIST,y_train_NIST,cv=10,scoring=('accuracy'))
+results = cross_val_score(rf_clf,x_train_NIST,y_train_NIST,cv=5,scoring=('accuracy'))
 mean_accu = results.mean()
 print('Random Forest Training Accuracy: %.2f'%(mean_accu))
 
 # Neural Network Train
 nn_clf = MLPClassifier()
-results = cross_val_score(nn_clf,x_train_NIST,y_train_NIST,cv=10,scoring=('accuracy'))
+results = cross_val_score(nn_clf,x_train_NIST,y_train_NIST,cv=5,scoring=('accuracy'))
 mean_accu = results.mean()
 print('Neural Network Training Accuracy: %.2f'%(mean_accu))
 
@@ -95,7 +95,7 @@ print('Neural Network Training Accuracy: %.2f'%(mean_accu))
 estimators = [('dt',dt_clf),('rf',rf_clf),('nn',nn_clf),
               ('pr',pr_clf),('lr',lr_clf),('gnb',gnb_clf)]
 en_clf = VotingClassifier(estimators,voting='hard')
-results = cross_val_score(en_clf,x_train_NIST,y_train_NIST,cv=10,scoring=('accuracy'))
+results = cross_val_score(en_clf,x_train_NIST,y_train_NIST,cv=5,scoring=('accuracy'))
 mean_accu = results.mean()
 print('Ensemble Training Accuracy: %.2f'%(mean_accu))
 
@@ -107,23 +107,23 @@ print('Ensemble Training Accuracy: %.2f'%(mean_accu))
 
 LABELS = ['%d' % i for i in range(28)]
 
-# Perceptron Test
-pr_clf.fit(x_train_NIST,y_train_NIST)
-y_pred = pr_clf.predict(x_test_NIST)
-print("Perceptron Test Accuracy: ", accuracy_score(y_test_NIST, y_pred))
-print(classification_report(y_test_NIST, y_pred, target_names=LABELS, digits=3))
+# # Perceptron Test
+# pr_clf.fit(x_train_NIST,y_train_NIST)
+# y_pred = pr_clf.predict(x_test_NIST)
+# print("Perceptron Test Accuracy: ", accuracy_score(y_test_NIST, y_pred))
+# print(classification_report(y_test_NIST, y_pred, target_names=LABELS, digits=3))
 
-# Logistic Regression Test
-lr_clf.fit(x_train_NIST,y_train_NIST)
-y_pred = lr_clf.predict(x_test_NIST)
-print("Logistic Regression Test Accuracy: ", accuracy_score(y_test_NIST, y_pred))
-print(classification_report(y_test_NIST, y_pred, target_names=LABELS, digits=3))
+# # Logistic Regression Test
+# lr_clf.fit(x_train_NIST,y_train_NIST)
+# y_pred = lr_clf.predict(x_test_NIST)
+# print("Logistic Regression Test Accuracy: ", accuracy_score(y_test_NIST, y_pred))
+# print(classification_report(y_test_NIST, y_pred, target_names=LABELS, digits=3))
 
-# Gaussian NB Test
-gnb_clf.fit(x_train_NIST,y_train_NIST)
-y_pred = gnb_clf.predict(x_test_NIST)
-print("Gaussian NB Test Accuracy: ", accuracy_score(y_test_NIST, y_pred))
-print(classification_report(y_test_NIST, y_pred, target_names=LABELS, digits=3))
+# # Gaussian NB Test
+# gnb_clf.fit(x_train_NIST,y_train_NIST)
+# y_pred = gnb_clf.predict(x_test_NIST)
+# print("Gaussian NB Test Accuracy: ", accuracy_score(y_test_NIST, y_pred))
+# print(classification_report(y_test_NIST, y_pred, target_names=LABELS, digits=3))
 
 # Decision Tree Test
 dt_clf.fit(x_train_NIST,y_train_NIST)
