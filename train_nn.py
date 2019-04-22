@@ -3,6 +3,7 @@ import numpy as np
 
 from sklearn.metrics import classification_report, accuracy_score
 from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.metrics import precision_score
 from sklearn.utils import shuffle
 import matplotlib.pyplot as plt
 from skimage.io import imread
@@ -20,39 +21,15 @@ LETTER_MAP = {'0':0,'1':1,'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,
               'T': 31, 'U': 32, 'V': 33, 'W': 34, 'X':35, 'Y': 36, 'Z': 37}
 MYLIST = []
 def plot_classification_report(cr):
-    title='Classification report '
-    with_avg_total=False
-    cmap=plt.cm.Blues
-    lines = cr.split('\n')
-
-    classes = []
-    plotMat = []
-    for line in lines[2 : (len(lines) - 3)]:
-        #print(line)
-        t = line.split()
-        # print(t)
-        classes.append(t[0])
-        v = [float(x) for x in t[1: len(t) - 1]]
-        print(v)
-        plotMat.append(v)
-
-    if with_avg_total:
-        aveTotal = lines[len(lines) - 1].split()
-        classes.append('avg/total')
-        vAveTotal = [float(x) for x in t[1:len(aveTotal) - 1]]
-        plotMat.append(vAveTotal)
-
-
-    plt.imshow(plotMat, interpolation='nearest', cmap=cmap)
-    plt.title(title)
-    plt.colorbar()
-    x_tick_marks = np.arange(3)
-    y_tick_marks = np.arange(len(classes))
-    plt.xticks(x_tick_marks, ['precision', 'recall', 'f1-score'], rotation=45)
-    plt.yticks(y_tick_marks, classes)
-    plt.tight_layout()
-    plt.ylabel('Classes')
-    plt.xlabel('Measures')
+    objects = LETTER_MAP.keys()
+    y_pos = np.arange(len(objects))
+    performance = cr
+    
+    plt.bar(y_pos, performance, align='center', alpha=0.5)
+    plt.xticks(y_pos, objects)
+    plt.ylabel('Usage')
+    plt.title('Classification report')
+    
     plt.savefig('graph2.png')
 
 def load_NIST(path):
@@ -124,25 +101,27 @@ model.compile(
     loss='sparse_categorical_crossentropy',
     metrics=['accuracy']
 )
-# model.fit(x=x_train_final, y=y_train_final, epochs=1)
+model.fit(x=x_train_final, y=y_train_final, epochs=1)
 
-# y_pred = model.predict_classes(x=x_test_final)
-# print("Test Accuracy: ", accuracy_score(y_test_final, y_pred))
-# plot_classification_report(classification_report(y_test_final, y_pred, target_names=[
-#     '%d' % i for i in range(38)
-# ], digits=3))
+y_pred = model.predict_classes(x=x_test_final)
+print("Test Accuracy: ", accuracy_score(y_test_final, y_pred))
+print (classification_report(y_test_final, y_pred, target_names=[
+    '%d' % i for i in range(38)
+], digits=3))
+print ('Precision:', precision_score(y_test_final, y_pred ))
 
-history = model.fit(x_train_final, y_train_final, validation_split=0.33, epochs=3)
-# list all data in history
-print(history.history.keys())
-# summarize history for accuracy
-plt.plot(history.history['acc'])
-plt.plot(history.history['val_acc'])
-plt.title('model accuracy')
-plt.ylabel('accuracy')
-plt.xlabel('epoch')
-plt.legend(['train', 'test'], loc='upper left')
-plt.show()
-plt.savefig('graph.png')
+plot_classification_report(list(precision_score(y_test_final, y_pred )))
+# history = model.fit(x_train_final, y_train_final, validation_split=0.33, epochs=3)
+# # list all data in history
+# print(history.history.keys())
+# # summarize history for accuracy
+# plt.plot(history.history['acc'])
+# plt.plot(history.history['val_acc'])
+# plt.title('model accuracy')
+# plt.ylabel('accuracy')
+# plt.xlabel('epoch')
+# plt.legend(['train', 'test'], loc='upper left')
+# plt.show()
+# plt.savefig('graph.png')
 
 model.save(MODEL_PATH)
